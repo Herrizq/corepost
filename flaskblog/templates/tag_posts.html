@@ -7,7 +7,7 @@
 
 
   {% for post in posts[::-1] %}
-  {% if post.tag == user.tag %}
+  {% if post.tag.lower().replace(" ","") == user.tag.lower().replace(" ","")  %}
   <article style ="background: #ffffff; padding: 10px 20px; border: 1px solid #dddddd; border-radius: 3px; margin-bottom: 20px;"class="media content-section">
 
     <div class="media-body">
