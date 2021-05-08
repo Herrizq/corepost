@@ -1,6 +1,10 @@
 from datetime import datetime
-from flaskblog import db, login_manager
-from flask_login import UserMixin
+from flaskblog import db, login_manager,app, admin
+from flask_login import UserMixin,current_user
+from flask_admin.contrib.sqla import ModelView
+
+
+
 
 
 followers = db.Table('followers',
@@ -8,12 +12,13 @@ followers = db.Table('followers',
     db.Column('followed_id', db.Integer, db.ForeignKey('user.id'))
 )
 
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
 
-    
+
 
 class User(db.Model,UserMixin):
     id = db.Column(db.Integer, primary_key = True)
@@ -23,6 +28,8 @@ class User(db.Model,UserMixin):
     password =  db.Column(db.String(60), nullable=False)
     posts = db.relationship('Post',backref='author',lazy=True)
     about = db.Column(db.Text(),default="Kiedyś to uzupełnie")
+    role = db.Column(db.Text(), default ="user")
+    is_verified = db.Column(db.Text(),default = "no")
     __searchable__ = ['username']
     followed = db.relationship(
         'User', secondary=followers,
@@ -55,6 +62,10 @@ class User(db.Model,UserMixin):
     def __repr__(self):
         return f"User('{self.username}','{self.email}','{self.image_file}')"
 
+
+
+
+
 class Post(db.Model):
     id =db.Column(db.Integer, primary_key = True)
 
@@ -62,5 +73,18 @@ class Post(db.Model):
     content = db.Column(db.Text(10),nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable= False)
     tag = db.Column(db.String(),default="#hello")
+    post_pic = db.Column(db.String())
+
+
     def __repr__(self):
         return f"Post('{self.date_posted}')"
+
+class MyModelView(ModelView):
+    def is_accessible(self):
+        return current_user.is_authenticated and current_user.role =='admin'
+
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect(url_for('home'))
+
+admin.add_view(MyModelView(User, db.session))
+admin.add_view(MyModelView(Post,db.session))
