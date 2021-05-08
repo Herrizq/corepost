@@ -56,6 +56,7 @@ class UpdateAccountForm(FlaskForm):
 class PostForm(FlaskForm):
     content = TextAreaField('Content', validators =[DataRequired(),Length(max=280)])
     tag = TextAreaField('Tag',validators =[Length(max=20)],default="#hello (możesz dać tylko jeden tag na raz)")
+    pic = FileField('Add picture to your post',validators =[FileAllowed(['jpg','png','jpeg'])])
     submit = SubmitField('Post')
 
 class EmptyForm(FlaskForm):
