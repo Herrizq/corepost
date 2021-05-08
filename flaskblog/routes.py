@@ -73,6 +73,8 @@ def save_picture(form_picture):
 
 
 
+
+
 @app.route("/account",methods=['GET','POST'])
 @login_required
 def account():
@@ -94,12 +96,32 @@ def account():
 		form.about.data = current_user.about
 	return render_template('account.html',title='account',image_file=image_file, form=form)
 
+def save_pic(form_pic):
+	random_hex = secrets.token_hex(8)
+	_, f_ext = os.path.splitext(form_pic.filename)
+	pic_fn = random_hex +f_ext
+	pic_path = os.path.join(app.root_path, 'static', pic_fn)
+
+	output_size = (420,220)
+	i = Image.open(form_pic)
+	i.thumbnail(output_size)
+
+	i.save(pic_path)
+
+	return pic_fn
+
 @app.route("/post/new",methods=['GET','POST'])
 @login_required
 def new_post():
+
 	form = PostForm()
+
 	if form.validate_on_submit():
-		post= Post(content=form.content.data, author=current_user, tag=form.tag.data)
+		post= Post(content=form.content.data, author=current_user, tag=form.tag.data, post_pic = form.pic.data)
+		if form.pic.data:
+			picture_file = save_pic(form.pic.data)
+			post.post_pic = picture_file
+
 		db.session.add(post)
 		db.session.commit()
 		flash('Your post has been created!', 'success')
@@ -143,41 +165,41 @@ def user(username):
 @app.route('/follow/<username>', methods=['POST'])
 @login_required
 def follow(username):
-    form = EmptyForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(username=username).first()
-        if user is None:
-            flash('User {} not found.'.format(username),'danger')
-            return redirect(url_for('index'))
-        if user == current_user:
-            flash('You cannot follow yourself!','danger')
-            return redirect(url_for('user', username=username))
-        current_user.follow(user)
-        db.session.commit()
-        flash('You are following {}!'.format(username),'success')
-        return redirect(url_for('user', username=username))
-    else:
-        return redirect(url_for('index'))
+	form = EmptyForm()
+	if form.validate_on_submit():
+		user = User.query.filter_by(username=username).first()
+		if user is None:
+			flash('User {} not found.'.format(username),'danger')
+			return redirect(url_for('index'))
+		if user == current_user:
+			flash('You cannot follow yourself!','danger')
+			return redirect(url_for('user', username=username))
+		current_user.follow(user)
+		db.session.commit()
+		flash('You are following {}!'.format(username),'success')
+		return redirect(url_for('user', username=username))
+	else:
+		return redirect(url_for('home'))
 
 
 @app.route('/unfollow/<username>', methods=['POST'])
 @login_required
 def unfollow(username):
-    form = EmptyForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(username=username).first()
-        if user is None:
-            flash('User {} not found.'.format(username),'danger')
-            return redirect(url_for('index'))
-        if user == current_user:
-            flash('You cannot unfollow yourself!','danger')
-            return redirect(url_for('user', username=username))
-        current_user.unfollow(user)
-        db.session.commit()
-        flash('You are not following {}.'.format(username),'danger')
-        return redirect(url_for('user', username=username))
-    else:
-        return redirect(url_for('index'))
+	form = EmptyForm()
+	if form.validate_on_submit():
+		user = User.query.filter_by(username=username).first()
+		if user is None:
+			flash('User {} not found.'.format(username),'danger')
+			return redirect(url_for('index'))
+		if user == current_user:
+			flash('You cannot unfollow yourself!','danger')
+			return redirect(url_for('user', username=username))
+		current_user.unfollow(user)
+		db.session.commit()
+		flash('You are not following {}.'.format(username),'danger')
+		return redirect(url_for('user', username=username))
+	else:
+		return redirect(url_for('home'))
 
 
 @app.route("/post/<post_tag>")
@@ -188,3 +210,16 @@ def post_tag_page(post_tag):
 	form = EmptyForm()
 
 	return render_template('tag_posts.html',user=user, posts=posts, form=form, forms=forms)
+
+
+@app.route("/search", methods=['GET','POST'])
+def search_user():
+	form = EmptyForm()
+	if request.method =='POST':
+		form = request.form
+		search_value=form['search_string']
+		users_list=User.query.all()
+		results=User.query.filter_by(username=search_value).first()
+
+
+	return render_template('search_user.html', results=results, form=form,search_value=search_value,users_list=users_list)
