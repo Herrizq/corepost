@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+  <div class="card border-0 shadow my-5">
+    <div class="card-body p-5">
+      <h1 class="font-weight-light"><center>Search results {{results.username}}</center></h1>
+
+
+  {% for result in users_list %}
+  {% if result.username == results.username%}
+
+    <article style ="background: #ffffff; padding: 10px 20px; border: 1px solid #dddddd; border-radius: 3px; margin-bottom: 20px;"class="media content-section">
+
+      <div class="media-body">
+
+        <div style="padding-bottom: 1px; margin-bottom: 4px; border-bottom: 1px solid #e3e3e3"class="article-metadata">
+          <img style ="height: 45px; width: 45px; margin-bottom:6px;"class="rounded-circle article-img" src="{{ url_for('static' ,filename= results.image_file )}}">
+          <a class="mr-2" href="{{ url_for('user', username=results.username)}}">{{ results.username }}</a>
+        </div>
+      </div>
+    </article>
+
+
+  {%endif%}
+
+  {%endfor%}
+
+  </div>
+  </div>
+  </div>
+
+
+{% endblock content %}
