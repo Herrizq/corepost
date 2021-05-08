@@ -28,6 +28,11 @@
 
           <h5 style="white-space:pre-line;margin-top: 10px;text-overflow: ellipsis;"class="article-content mb-5 pre-line">{{ post.content }}</h5>
           <a href ="{{ url_for('post_tag_page', post_tag=post.tag) }}"><h5 style="white-space:pre-line;margin-top: 10px;text-overflow: ellipsis;"class="article-content mb-5 pre-line">{{ post.tag }}</h5></a>
+          {%if post.post_pic%}
+            <img style ="margin-bottom:6px;" src="{{ url_for('static' ,filename= post.post_pic )}}">
+          {%endif%}
+
+
         </div>
 
       </article>
