@@ -13,7 +13,7 @@
         </div>
         <div class="col-6">
           <h4 style= "margin-top:20px;" class="account-heading align-text-top">{{ user.username }}</h4>
-          
+
           <p style = "text-muted"> {{ user.followers.count() }} followers, {{ user.followed.count() }} following.</p>
         </div>
         </div>
@@ -22,7 +22,7 @@
 
   {% if not current_user.is_following(user) %}
 
-            <form style="" action="{{ url_for('follow', username=user.username) }}" method="post">
+            <form  action="{{ url_for('follow', username=user.username) }}" method="post">
                 {{ form.hidden_tag() }}
 
                   <div style="margin:10px;">{{ form.submit(value='Follow') }}</div>
@@ -59,6 +59,10 @@
 
       <h5 style="white-space:pre-line;margin-top: 10px;"class="article-content mb-5 pre-line">{{ post.content }}</h5>
       <a href ="{{ url_for('post_tag_page', post_tag=post.tag) }}"><h5 style="white-space:pre-line;margin-top: 10px;text-overflow: ellipsis;"class="article-content mb-5 pre-line">{{ post.tag }}</h5></a>
+
+      {%if post.post_pic%}
+        <img style ="margin-bottom:6px;" src="{{ url_for('static' ,filename= post.post_pic )}}">
+      {%endif%}
 
     </div>
 
