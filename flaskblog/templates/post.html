@@ -22,6 +22,10 @@
 
         <p class="article-content">{{ post.content }}</p>
         <p class="article-content">{{ post.tag }}</p>
+
+        {%if post.post_pic%}
+          <img style ="margin-bottom:6px;" src="{{ url_for('static' ,filename= post.post_pic )}}">
+        {%endif%}
       </div>
   </article>
 
